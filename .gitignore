@@ -7,4 +7,3 @@ assignment2/output.txt
 *.tex
 *.synctex.gz
 project/data/
-project/.ipynb_checkpoints/
