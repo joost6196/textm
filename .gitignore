@@ -1,6 +1,7 @@
 assignment2/data
 assignment2/output.txt
 *.zip
+*.h5
 *.pdf
 *.aux
 *.log
