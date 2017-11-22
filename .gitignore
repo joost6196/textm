@@ -6,5 +6,5 @@ assignment2/output.txt
 *.log
 *.tex
 *.synctex.gz
-project/data
+project/data/
 project/.ipynb_checkpoints/
