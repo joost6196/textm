@@ -1,3 +1,10 @@
 assignment2/data
 assignment2/output.txt
 *.zip
+*.pdf
+*.aux
+*.log
+*.tex
+*.synctex.gz
+project/data
+project/.ipynb_checkpoints/
