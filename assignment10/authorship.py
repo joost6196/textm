@@ -31,6 +31,7 @@ def load_test_data():
 def extract_features(text):
     features = []
     #first sentence features
+
     sentences = nltk.sent_tokenize(text)
     features.append(len(sentences)) #length of sentences
     features.append(sum(len(sent) for sent in sentences)/len(sentences)) #mean length
@@ -45,20 +46,26 @@ def extract_features(text):
 
     for letter in list(string.ascii_uppercase):
         features.append(len([x for x in text if x == letter]))
+
     #bag of word features
     tokens = wordpunct_tokenize(text)
     bag_of_words = [x for x in tokens]
+    """
     features.append(len([x for x in bag_of_words if len(x) < 2])) #punctation or short words
     features.append(len([x for x in bag_of_words if x.isdigit()]))
     features.append(len([x for x in bag_of_words if x.isupper()]))
     features.append(len([x for x in bag_of_words if x.lower()]))
+    features.append(len([x for x in bag_of_words if x.isspace()]))
     features.append(float(sum(map(len, bag_of_words))) / len(bag_of_words)) #average word length
     features.append(len(bag_of_words)) #number of words
     features.append(len([x for x in bag_of_words if x.lower() not in stop_words])) #
     #function words
+    """
     for word in functionwords:
         features.append(len([x for x in bag_of_words if x in word]))
+
     #bigram trigram  collocation counts
+
     bigram_measures = nltk.collocations.BigramAssocMeasures()
     trigram_measures = nltk.collocations.TrigramAssocMeasures()
     finder = nltk.BigramCollocationFinder.from_words(tokens)
@@ -70,6 +77,7 @@ def extract_features(text):
     features.append(len(set(tokens))/float(len(tokens)))
 
     #syntactical features
+
     postags = nltk.pos_tag(nltk.word_tokenize(text))
     counts = Counter(tag for word, tag in postags)
     features.append(counts['NN'])
@@ -82,28 +90,18 @@ def extract_features(text):
     features.append(counts['JJ'])
     features.append(counts['PRP'])
     features.append(counts['SYM'])
-    """
-    features.append(len([x for (x, y) in postags if y is 'NN']))
-    features.append(len([x for (x, y) in postags if y is 'DT']))
-    features.append(len([x for (x, y) in postags if y is 'JJ']))
-    features.append(len([x for (x, y) in postags if y is 'CD']))
-    features.append(len([x for (x, y) in postags if y is 'FW']))
-    """
 
     return features
-
-
-
-
 
 # Classify using the features
 def classify(train_features, train_labels, test_features):
     # TODO: (Optional) If you would like to test different how classifiers would perform different, you can alter
     # TODO: the classifier here.
     clf = SVC(kernel='linear')
+    print np.shape(train_features)
+    print np.shape(train_labels)
     clf.fit(train_features, train_labels)
     return clf.predict(test_features)
-
 
 # Evaluate predictions (y_pred) given the ground truth (y_true)
 def evaluate(y_true, y_pred):
@@ -119,7 +117,6 @@ def evaluate(y_true, y_pred):
     print("F1-score: %f" % f1_score)
 
     return recall, precision, f1_score
-
 
 # The main program
 def main():
@@ -145,7 +142,6 @@ def main():
         scores.append(evaluate(validation_labels, y_pred))
         # Print a newline
         print("")
-
     # Print the averaged score
     recall = sum([x[0] for x in scores]) / len(scores)
     print("Averaged total recall", recall)
@@ -154,14 +150,11 @@ def main():
     f_score = sum([x[2] for x in scores]) / len(scores)
     print("Averaged total f-score", f_score)
     print("")
-
-    # TODO: Once you are done crafting your features and tuning your model, also test on the test set and report your
-    # TODO: findings. How does the score differ from the validation score? And why do you think this is?
-    # test_data = load_test_data()
-    # test_features = list(map(extract_features, test_data.data))
+    test_data = load_test_data()
+    test_features = list(map(extract_features, test_data.data))
     #
-    # y_pred = classify(features, train_data.target, test_features)
-    # evaluate(test_data.target, y_pred)
+    y_pred = classify(features, train_data.target, test_features)
+    evaluate(test_data.target, y_pred)
 
 
 
