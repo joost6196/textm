@@ -31,7 +31,6 @@ def load_test_data():
 def extract_features(text):
     features = []
     #first sentence features
-
     sentences = nltk.sent_tokenize(text)
     features.append(len(sentences)) #length of sentences
     features.append(sum(len(sent) for sent in sentences)/len(sentences)) #mean length
@@ -40,17 +39,15 @@ def extract_features(text):
     #features.append(std**2)
     #character features
     features.append(len(text)) #text length
-
     for letter in list(string.ascii_lowercase):
         features.append(len([x for x in text if x == letter]))
 
     for letter in list(string.ascii_uppercase):
         features.append(len([x for x in text if x == letter]))
-
     #bag of word features
     tokens = wordpunct_tokenize(text)
     bag_of_words = [x for x in tokens]
-    """
+
     features.append(len([x for x in bag_of_words if len(x) < 2])) #punctation or short words
     features.append(len([x for x in bag_of_words if x.isdigit()]))
     features.append(len([x for x in bag_of_words if x.isupper()]))
@@ -60,10 +57,8 @@ def extract_features(text):
     features.append(len(bag_of_words)) #number of words
     features.append(len([x for x in bag_of_words if x.lower() not in stop_words])) #
     #function words
-    """
     for word in functionwords:
         features.append(len([x for x in bag_of_words if x in word]))
-
     #bigram trigram  collocation counts
 
     bigram_measures = nltk.collocations.BigramAssocMeasures()
@@ -75,9 +70,7 @@ def extract_features(text):
     features.append(len(finder3.score_ngrams(trigram_measures.raw_freq)))
     features.append(len(set(tokens)))
     features.append(len(set(tokens))/float(len(tokens)))
-
     #syntactical features
-
     postags = nltk.pos_tag(nltk.word_tokenize(text))
     counts = Counter(tag for word, tag in postags)
     features.append(counts['NN'])
@@ -121,10 +114,8 @@ def evaluate(y_true, y_pred):
 # The main program
 def main():
     train_data = load_train_data()
-
     # Extract the features
     features = list(map(extract_features, train_data.data))
-
     # Classify and evaluate
     skf = sklearn.model_selection.StratifiedKFold(n_splits=10)
     scores = []
@@ -155,8 +146,6 @@ def main():
     #
     y_pred = classify(features, train_data.target, test_features)
     evaluate(test_data.target, y_pred)
-
-
 
 if __name__ == '__main__':
     main()
