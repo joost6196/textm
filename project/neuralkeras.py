@@ -8,8 +8,8 @@ import string
 import re
 import random
 
-batch_size = 128
-epochs = 10
+batch_size = 256
+epochs = 50
 latent_dim = 256
 num_samples = 10000
 SOS_token = 0
