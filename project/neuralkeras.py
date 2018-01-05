@@ -9,7 +9,7 @@ import re
 import random
 
 batch_size = 256
-epochs = 50
+epochs = 2
 latent_dim = 256
 num_samples = 10000
 SOS_token = 0
@@ -42,14 +42,14 @@ class Network:
             dtype='float32')
         for i, (self.input_text, self.target_text) in enumerate(zip(self.input_texts, self.target_texts)):
             for t, word in enumerate(self.input_text):
-                self.encoder_input_data[i, t, self.input_lang.word2index.get(word)] = 1.
-            for t, char in enumerate(self.target_text):
+                self.encoder_input_data[i, t, word] = 1.
+            for t, word in enumerate(self.target_text):
                 # decoder_target_data is ahead of decoder_input_data by one timestep
-                self.decoder_input_data[i, t, self.output_lang.word2index.get(word)] = 1.
+                self.decoder_input_data[i, t, word] = 1.
                 if t > 0:
                     # decoder_target_data will be ahead by one timestep
                     # and will not include the start character.
-                    self.decoder_target_data[i, t - 1, self.output_lang.word2index.get(word)] = 1.
+                    self.decoder_target_data[i, t - 1, word] = 1.
 
     def trainNetwork(self):
         # Define an input sequence and process it.
@@ -76,6 +76,33 @@ class Network:
                   validation_split=0.2)
         # Save model
         model.save(self.savefilename)
+    """
+
+    def trainNetwork(self):
+
+        # Define an input sequence and process it.
+        self.encoder_inputs = Input(shape=(None,))
+        self.x = Embedding(self.num_encoder_tokens, latent_dim)(self.encoder_inputs)
+        self.x, self.state_h, self.state_c = LSTM(latent_dim, return_state=True)(self.x)
+        self.encoder_states = [self.state_h, self.state_c]
+
+        # Set up the decoder, using `encoder_states` as initial state.
+        self.decoder_inputs = Input(shape=(None,))
+        self.x = Embedding(self.num_decoder_tokens, latent_dim)(self.decoder_inputs)
+        self.x = LSTM(latent_dim, return_sequences=True)(self.x, initial_state=self.encoder_states)
+        self.decoder_outputs = Dense(self.num_decoder_tokens, activation='softmax')(self.x)
+
+        # Define the model that will turn
+        # `encoder_input_data` & `decoder_input_data` into `decoder_target_data`
+        model = Model([self.encoder_inputs, self.decoder_inputs], self.decoder_outputs)
+        model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
+        model.fit([self.encoder_input_data, self.decoder_input_data], self.decoder_target_data,
+                  batch_size=batch_size,
+                  epochs=epochs,
+                  validation_split=0.2)
+        # Save model
+        model.save(self.savefilename)
+    """
 
     def inferenceNetwork(self):
         self.encoder_model = Model(self.encoder_inputs, self.encoder_states)
